@@ -1,10 +1,15 @@
-import { App } from "@slack/bolt";
+// this code is so brittle but it works so I'm not touching it :D
 
-// Initializes your app with your Slack app and bot token
+import { App, type BlockAction, type ButtonAction } from "@slack/bolt";
+import { VercelReceiver } from "@vercel/slack-bolt";
+
+const receiver = new VercelReceiver();
+
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
-  socketMode: true,
-  appToken: process.env.SLACK_APP_TOKEN,
+  signingSecret: process.env.SLACK_SIGNING_SECRET,
+  receiver,
+  deferInitialization: true,
 });
 
 app.command("/give-hug", async ({ client, command, ack, respond }) => {
@@ -113,7 +118,7 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
     },
   });
 
-  const user = view.state.values.user_block.user.selected_user;
+  const user = view.state.values.user_block.user.selected_user!;
   const message = view.state.values.message_block.message.value;
 
   await client.chat.postMessage({
@@ -154,64 +159,63 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
   });
 });
 
-app.action("give_hug_back", async ({ body, ack, action, client }) => {
-  await ack();
-  await client.chat.update({
-    channel: body.channel.id,
-    ts: body.message.ts,
-    blocks: [
-      body.message.blocks[0],
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `you clicked *give hug back!*`,
-        },
-      },
-      {
-        type: "context",
-        elements: [
-          {
+app.action<BlockAction<ButtonAction>>(
+  "give_hug_back",
+  async ({ body, ack, action, client }) => {
+    await ack();
+
+    await client.chat.update({
+      channel: body.channel!.id,
+      ts: body.message!.ts,
+      blocks: [
+        body.message!.blocks[0],
+        {
+          type: "section",
+          text: {
             type: "mrkdwn",
-            text: "send your own hugs! `/give-hug`",
+            text: `you clicked *give hug back!*`,
           },
-        ],
-      },
-    ],
-  });
-
-  await client.chat.postMessage({
-    channel: action.value,
-    text: `:neocat_hug_heart: <@${body.user.id}> gave you a hug back!`,
-    blocks: [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `:neocat_hug_heart: <@${body.user.id}> gave you a hug back!`,
         },
-      },
-      {
-        type: "context",
-        elements: [
-          {
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: "send your own hugs! `/give-hug`",
+            },
+          ],
+        },
+      ],
+    });
+
+    await client.chat.postMessage({
+      channel: action.value!,
+      text: `:neocat_hug_heart: <@${body.user.id}> gave you a hug back!`,
+      blocks: [
+        {
+          type: "section",
+          text: {
             type: "mrkdwn",
-            text: "send more hugs! `/give-hug`",
+            text: `:neocat_hug_heart: <@${body.user.id}> gave you a hug back!`,
           },
-        ],
-      },
-    ],
-  });
+        },
+        {
+          type: "context",
+          elements: [
+            {
+              type: "mrkdwn",
+              text: "send more hugs! `/give-hug`",
+            },
+          ],
+        },
+      ],
+    });
 
-  await client.chat.postMessage({
-    channel: "C09RR27E2HL",
-    text: `:neocat_snuggle: <@${body.user.id}> *sent a hug back* to <@${action.value}>!`,
-  });
-});
+    await client.chat.postMessage({
+      channel: "C09RR27E2HL",
+      text: `:neocat_snuggle: <@${body.user.id}> *sent a hug back* to <@${action.value}>!`,
+    });
+  }
+);
 
-(async () => {
-  // Start your app
-  await app.start();
-
-  app.logger.info("⚡️ Bolt app is running!");
-})();
+export { app, receiver };

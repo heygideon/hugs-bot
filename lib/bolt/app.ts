@@ -54,6 +54,10 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
             type: "multi_users_select",
             action_id: "user",
             initial_users: initial_users,
+            max_selected_items:
+              command.user_id === "U09D42Q0ARJ"
+                ? undefined // rules for thee but not for me
+                : 50,
             focus_on_load: initial_users.length === 0,
             placeholder: {
               type: "plain_text",
@@ -84,6 +88,9 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
 });
 
 app.view("give_hug_modal", async ({ ack, body, view, client }) => {
+  const users = view.state.values.user_block.user.selected_users!;
+  const message = view.state.values.message_block.message.value;
+
   await ack({
     response_action: "update",
     view: {
@@ -119,9 +126,6 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
       ],
     },
   });
-
-  const users = view.state.values.user_block.user.selected_users!;
-  const message = view.state.values.message_block.message.value;
 
   for (const user of users) {
     await client.chat.postMessage({
@@ -162,13 +166,26 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
   await client.chat.postMessage({
     channel: "C09RR27E2HL", // #hugs
     text: `<@${body.user.id}> sent a hug to ${users.length > 1 ? `${users.length} people` : `<@${users[0]}>`}!`,
-    blocks: users.map((user) => ({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `:neocat_heart: <@${body.user.id}> *sent a hug* to <@${user}>!`,
-      },
-    })),
+    blocks: [
+      ...users.slice(0, 49).map((user) => ({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:neocat_heart: <@${body.user.id}> *sent a hug* to <@${user}>!`,
+        },
+      })),
+      ...(users.length > 50
+        ? [
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `_+ ${users.length - 50} more_`,
+              },
+            },
+          ]
+        : []),
+    ],
   });
 });
 

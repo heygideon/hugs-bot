@@ -16,10 +16,13 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
   // Acknowledge command request
   await ack();
 
-  const [user] = command.text.split(" ", 1);
-
-  const match = user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/);
-  const userId = match?.groups?.id;
+  const dedupe = <T>(array: T[]) => [...new Set(array)];
+  const initial_users = dedupe(
+    command.text
+      .split(" ")
+      .map((user) => user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/)?.groups?.id)
+      .filter((x): x is string => !!x),
+  );
 
   const result = await client.views.open({
     trigger_id: command.trigger_id,
@@ -45,16 +48,16 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
         {
           type: "input",
           block_id: "user_block",
-          label: { type: "plain_text", text: "user to hug" },
+          label: { type: "plain_text", text: "people to hug" },
           optional: false,
           element: {
-            type: "users_select",
+            type: "multi_users_select",
             action_id: "user",
-            initial_user: userId,
-            focus_on_load: !userId,
+            initial_users: initial_users,
+            focus_on_load: initial_users.length === 0,
             placeholder: {
               type: "plain_text",
-              text: "select a user",
+              text: "select users",
             },
           },
         },
@@ -67,13 +70,12 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
           },
           optional: true,
           element: {
-            type: "plain_text_input",
+            type: "rich_text_input",
             action_id: "message",
             placeholder: {
               type: "plain_text",
               text: "say something nice to them!",
             },
-            multiline: true,
           },
         },
       ],
@@ -101,7 +103,7 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
           type: "section",
           text: {
             type: "plain_text",
-            text: "hug sent! :neocat_heart:",
+            text: "hugs sent! :neocat_heart:",
             emoji: true,
           },
         },
@@ -118,44 +120,55 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
     },
   });
 
-  const user = view.state.values.user_block.user.selected_user!;
+  const users = view.state.values.user_block.user.selected_users!;
   const message = view.state.values.message_block.message.value;
 
-  await client.chat.postMessage({
-    channel: user,
-    text: `:neocat_hug_heart: you got a hug from <@${body.user.id}>!`,
-    blocks: [
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `:neocat_hug_heart: you got a hug from <@${body.user.id}>!${
-            message ? `\n\nthey said:\n>${message.split("\n").join("\n>")}` : ""
-          }`,
-        },
-      },
-      {
-        type: "actions",
-        elements: [
-          {
-            type: "button",
-            style: "primary",
-            text: {
-              type: "plain_text",
-              text: ":neocat_aww: give hug back!",
-              emoji: true,
-            },
-            value: body.user.id,
-            action_id: "give_hug_back",
+  for (const user of users) {
+    await client.chat.postMessage({
+      channel: user,
+      text: `you got a hug from <@${body.user.id}>!`,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `:neocat_hug_heart: you got a hug from <@${body.user.id}>!${
+              message
+                ? `\n\nthey said:\n>${message.split("\n").join("\n>")}`
+                : ""
+            }`,
           },
-        ],
-      },
-    ],
-  });
+        },
+        {
+          type: "actions",
+          elements: [
+            {
+              type: "button",
+              style: "primary",
+              text: {
+                type: "plain_text",
+                text: ":neocat_aww: give hug back!",
+                emoji: true,
+              },
+              value: body.user.id,
+              action_id: "give_hug_back",
+            },
+          ],
+        },
+      ],
+    });
+  }
 
   await client.chat.postMessage({
-    channel: "C09RR27E2HL",
-    text: `:neocat_heart: <@${body.user.id}> *sent a hug* to <@${user}>!`,
+    channel: "C09RR27E2HL", // #hugs
+    text: `<@${body.user.id}> sent a hug to ${users.length > 1 ? `${users.length} people` : `<@${users[0]}>`}!`,
+    blocks: users.map((user) => ({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `:neocat_heart: <@${body.user.id}> *sent a hug* to <@${user}>!`,
+      },
+    })),
   });
 });
 
@@ -212,10 +225,19 @@ app.action<BlockAction<ButtonAction>>(
     });
 
     await client.chat.postMessage({
-      channel: "C09RR27E2HL",
-      text: `:neocat_snuggle: <@${body.user.id}> *sent a hug back* to <@${action.value}>!`,
+      channel: "C09RR27E2HL", // #hugs
+      text: `<@${body.user.id}> sent a hug back to <@${action.value}>!`,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `:neocat_snuggle: <@${body.user.id}> *sent a hug back* to <@${action.value}>!`,
+          },
+        },
+      ],
     });
-  }
+  },
 );
 
 export { app, receiver };

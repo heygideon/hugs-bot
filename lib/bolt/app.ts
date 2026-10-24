@@ -73,14 +73,13 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
             text: "message",
           },
           optional: true,
-          element: {
-            type: "rich_text_input",
-            action_id: "message",
-            placeholder: {
-              type: "plain_text",
-              text: "say something nice to them!",
-            },
+          type: "plain_text_input",
+          action_id: "message",
+          placeholder: {
+            type: "plain_text",
+            text: "say something nice to them!",
           },
+          multiline: true,
         },
       ],
     },

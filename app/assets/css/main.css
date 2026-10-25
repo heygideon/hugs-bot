@@ -5,3 +5,12 @@
   --font-heading: "Platypi", serif;
   --default-font-family: var(--font-serif);
 }
+
+@layer base {
+  body, html, #__nuxt {
+    height: 100%;
+  }
+  body {
+    background: url("/noise.png") repeat;
+  }
+}

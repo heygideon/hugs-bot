@@ -1,3 +1,3 @@
 <template>
-  <h1 class="text-4xl font-semibold font-heading">leaderboard</h1>
+  <h1 class="font-heading text-4xl font-semibold">leaderboard</h1>
 </template>

@@ -1,14 +1,9 @@
 import { actions, blocks, button, context, section, text } from "slack.ts";
 import { App } from "@slack/bolt";
 import { VercelReceiver } from "@vercel/slack-bolt";
-
-const env = (key: string) => process.env[key];
-const requiredEnv = (key: string) => {
-  const value = env(key);
-  if (value) return value;
-
-  throw new Error(`${key} is not defined in .env`);
-};
+import { env, requiredEnv } from "./env";
+import { db } from "./db";
+import { events } from "./db/schema";
 
 const CHANNEL = env("SLACK_CHANNEL") || "C09RR27E2HL"; // -> #hugs
 
@@ -51,6 +46,12 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
       ),
     ),
   });
+
+  await db.insert(events).values({
+    type: "hug_send",
+    fromId: opts.fromId,
+    toId: opts.toId,
+  });
 }
 
 interface ReturnHugToUserOpts {
@@ -88,5 +89,12 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
         `:neocat_snuggle: <@${opts.fromId}> sent a hug back to <@${opts.toId}>!`,
       ),
     ),
+  });
+
+  await db.insert(events).values({
+    type: "hug_return",
+    fromId: opts.fromId,
+    toId: opts.toId,
+    idempotencyKey: opts.ts,
   });
 }

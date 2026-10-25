@@ -1,6 +1,9 @@
 import { createHandler } from "@vercel/slack-bolt";
 import { blocks, context, section } from "slack.ts";
 import { app, receiver, returnHugToUser } from "~~/server/utils/slack";
+import { db } from "../utils/db";
+import { events } from "../utils/db/schema";
+import { eq } from "drizzle-orm";
 
 app.command("/give-hug-local", async (event) => {
   await event.ack();
@@ -91,14 +94,12 @@ app.view("give_hug_modal", async (event) => {
     );
     return;
   }
+
+  const fromId = event.body.user.id;
   const toId = values.user_block.user.selected_user as string;
   const message = values.message_block.message.value as string;
 
-  await sendHugToUser({
-    fromId: event.body.user.id,
-    toId,
-    message,
-  });
+  await sendHugToUser({ fromId, toId, message });
 });
 
 app.action("give_hug_back", async (event) => {
@@ -134,7 +135,12 @@ app.action("give_hug_back", async (event) => {
   const fromId = event.body.user.id;
   const toId = event.action.value;
 
-  // TODO: check idempotency key
+  const [existing] = await db
+    .select({ id: events.id })
+    .from(events)
+    .where(eq(events.idempotencyKey, ts))
+    .limit(1);
+  if (existing) return;
 
   await returnHugToUser({ channel, ts, fromId, toId });
 });

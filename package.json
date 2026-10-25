@@ -7,13 +7,18 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@libsql/client": "^0.18.0",
     "@nuxt/fonts": "1.2.0",
     "@slack/bolt": "^5.1.0",
     "@tailwindcss/vite": "^4.3.3",
     "@vercel/slack-bolt": "^1.7.3",
+    "drizzle-orm": "^1.0.0-rc.5",
     "nuxt": "^4.6.2",
     "slack.ts": "0.0.22",
     "tailwindcss": "^4.3.3",
@@ -22,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
+    "drizzle-kit": "^1.0.0-rc.5",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1"
   }

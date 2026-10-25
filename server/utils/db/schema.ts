@@ -16,6 +16,19 @@ export const events = sqliteTable("events", {
   idempotencyKey: text("idempotency_key"),
 
   createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
     .default(sql`(unixepoch())`)
     .$onUpdateFn(() => sql`(unixepoch())`),
 });
+
+export const rateLimits = sqliteTable(
+  "rate_limits",
+  {
+    userId: text("user_id").notNull(),
+    ts: integer()
+      .notNull()
+      .default(sql`(unixepoch())`),
+    count: integer().notNull().default(1),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.ts] })],
+);

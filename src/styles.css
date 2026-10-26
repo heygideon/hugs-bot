@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "Crimson Pro", serif;
-  --font-heading: "Platypi", serif;
+  --font-serif: "Crimson Pro Variable", serif;
+  --font-heading: "Platypi Variable", serif;
   --default-font-family: var(--font-serif);
 }
 
 @layer base {
-  body, html, #__nuxt {
+  body,
+  html {
     height: 100%;
   }
-  body {
+  html {
     background: url("/noise.png") repeat;
   }
 }

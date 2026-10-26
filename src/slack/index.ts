@@ -1,15 +1,11 @@
 import { createHandler } from "@vercel/slack-bolt";
 import { actions, blocks, button, context, section } from "slack.ts";
-import {
-  app,
-  giveHugModal,
-  receiver,
-  returnHugToUser,
-} from "~~/server/utils/slack";
-import { db } from "../utils/db";
-import { events } from "../utils/db/schema";
+import { giveHugModal, returnHugToUser, sendHugToUser } from "./helpers";
+import { db } from "~/db";
+import { events } from "~/db/schema";
 import { eq } from "drizzle-orm";
-import { ratelimit } from "../utils/ratelimit";
+import { ratelimit } from "~/lib/ratelimit";
+import { app, receiver } from "./app";
 
 app.command("/give-hug-local", async (event) => {
   await event.ack();
@@ -132,4 +128,4 @@ app.action("give_hug_back", async (event) => {
   await returnHugToUser({ channel, ts, fromId, toId });
 });
 
-export default fromWebHandler(createHandler(app, receiver));
+export const handleSlackEvent = createHandler(app, receiver);

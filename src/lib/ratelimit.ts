@@ -1,4 +1,6 @@
 import { and, lt, sql } from "drizzle-orm";
+import { db } from "~/db";
+import { rateLimits } from "~/db/schema";
 
 export async function ratelimit(userId: string) {
   // rate limit hugs sending

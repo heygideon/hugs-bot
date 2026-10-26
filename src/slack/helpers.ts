@@ -1,20 +1,8 @@
 import { actions, blocks, button, context, section, text } from "slack.ts";
-import { App } from "@slack/bolt";
-import { VercelReceiver } from "@vercel/slack-bolt";
-import { env, requiredEnv } from "./env";
-import { db } from "./db";
-import { events } from "./db/schema";
-import { View } from "@slack/types";
-
-const CHANNEL = env("SLACK_CHANNEL") || "C09RR27E2HL"; // -> #hugs
-
-export const receiver = new VercelReceiver();
-export const app = new App({
-  token: requiredEnv("SLACK_XOXB"),
-  signingSecret: requiredEnv("SLACK_SIGNING_SECRET"),
-  receiver,
-  deferInitialization: true,
-});
+import { db } from "~/db";
+import { events } from "~/db/schema";
+import type { View } from "@slack/types";
+import { app, CHANNEL } from "./app";
 
 export const giveHugModal = (opts: { prefilledUser?: string }) =>
   ({

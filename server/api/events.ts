@@ -2,8 +2,9 @@ import { createHandler } from "@vercel/slack-bolt";
 import { blocks, context, section } from "slack.ts";
 import { app, receiver, returnHugToUser } from "~~/server/utils/slack";
 import { db } from "../utils/db";
-import { events, rateLimits } from "../utils/db/schema";
-import { and, eq, lt, sql } from "drizzle-orm";
+import { events } from "../utils/db/schema";
+import { eq } from "drizzle-orm";
+import { ratelimit } from "../utils/ratelimit";
 
 app.command("/give-hug-local", async (event) => {
   await event.ack();
@@ -99,24 +100,8 @@ app.view("give_hug_modal", async (event) => {
   const toId = values.user_block.user.selected_user as string;
   const message = values.message_block.message.value as string;
 
-  // rate limit hugs sending
-  // primary key userId + timestamp, effective 1 req/sec
-  const [limit] = await db
-    .insert(rateLimits)
-    .values({ userId: fromId })
-    .onConflictDoUpdate({
-      target: [rateLimits.userId, rateLimits.ts],
-      set: {
-        count: sql`${rateLimits.count} + 1`,
-      },
-    })
-    .returning();
-  if (!limit || limit.count > 1) return;
-
-  // auto-cleanup old rate limit rows
-  await db
-    .delete(rateLimits)
-    .where(and(lt(rateLimits.ts, sql`(unixepoch())`), lt(rateLimits.count, 2)));
+  const allowed = await ratelimit(fromId);
+  if (!allowed) return;
 
   await sendHugToUser({ fromId, toId, message });
 });

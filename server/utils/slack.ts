@@ -124,7 +124,7 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
     text: `<@${opts.fromId}> gave you a hug back!`,
     blocks: blocks(
       section(`:neocat_hug_heart: <@${opts.fromId}> gave you a hug back!`),
-      section("send more hugs! `/give-hug`"),
+      context("send more hugs! `/give-hug`"),
     ),
   });
 

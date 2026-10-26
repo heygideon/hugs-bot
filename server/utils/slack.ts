@@ -4,6 +4,7 @@ import { VercelReceiver } from "@vercel/slack-bolt";
 import { env, requiredEnv } from "./env";
 import { db } from "./db";
 import { events } from "./db/schema";
+import { View } from "@slack/types";
 
 const CHANNEL = env("SLACK_CHANNEL") || "C09RR27E2HL"; // -> #hugs
 
@@ -14,6 +15,52 @@ export const app = new App({
   receiver,
   deferInitialization: true,
 });
+
+export const giveHugModal = (opts: { prefilledUser?: string }) =>
+  ({
+    type: "modal",
+    callback_id: "give_hug_modal",
+    external_id: "give_hug_modal",
+
+    title: { type: "plain_text", text: "give a hug" },
+    submit: {
+      type: "plain_text",
+      text: "send hug :neocat_heart:",
+      emoji: true,
+    },
+    close: { type: "plain_text", text: "no hug" },
+
+    blocks: [
+      {
+        type: "input",
+        block_id: "user_block",
+        label: { type: "plain_text", text: "user" },
+        element: {
+          type: "users_select",
+          action_id: "user",
+          initial_user: opts.prefilledUser,
+          // focus_on_load: !prefilledUser, -> appears to have no effect
+          placeholder: { type: "plain_text", text: "select a user..." },
+        },
+      },
+      {
+        type: "input",
+        block_id: "message_block",
+        label: { type: "plain_text", text: "message" },
+        optional: true,
+        element: {
+          type: "plain_text_input",
+          action_id: "message",
+          multiline: true,
+          // focus_on_load: !!prefilledUser,
+          placeholder: {
+            type: "plain_text",
+            text: "say something nice to them!",
+          },
+        },
+      },
+    ],
+  }) satisfies View;
 
 interface SendHugToUserOpts {
   fromId: string;

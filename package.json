@@ -26,6 +26,7 @@
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
+    "@slack/types": "^3.2.0",
     "@types/node": "^26.6.5",
     "drizzle-kit": "^1.0.0-rc.5",
     "prettier": "^3.9.10",

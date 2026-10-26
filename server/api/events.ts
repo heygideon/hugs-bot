@@ -1,6 +1,11 @@
 import { createHandler } from "@vercel/slack-bolt";
-import { blocks, context, section } from "slack.ts";
-import { app, receiver, returnHugToUser } from "~~/server/utils/slack";
+import { actions, blocks, button, context, section } from "slack.ts";
+import {
+  app,
+  giveHugModal,
+  receiver,
+  returnHugToUser,
+} from "~~/server/utils/slack";
 import { db } from "../utils/db";
 import { events } from "../utils/db/schema";
 import { eq } from "drizzle-orm";
@@ -16,49 +21,7 @@ app.command("/give-hug-local", async (event) => {
 
   await app.client.views.open({
     trigger_id: event.body.trigger_id,
-    view: {
-      type: "modal",
-      callback_id: "give_hug_modal",
-
-      title: { type: "plain_text", text: "give a hug" },
-      submit: {
-        type: "plain_text",
-        text: "send hug :neocat_heart:",
-        emoji: true,
-      },
-      close: { type: "plain_text", text: "no hug" },
-
-      blocks: [
-        {
-          type: "input",
-          block_id: "user_block",
-          label: { type: "plain_text", text: "user" },
-          element: {
-            type: "users_select",
-            action_id: "user",
-            initial_user: prefilledUser,
-            // focus_on_load: !prefilledUser, -> appears to have no effect
-            placeholder: { type: "plain_text", text: "select a user..." },
-          },
-        },
-        {
-          type: "input",
-          block_id: "message_block",
-          label: { type: "plain_text", text: "message" },
-          optional: true,
-          element: {
-            type: "plain_text_input",
-            action_id: "message",
-            multiline: true,
-            // focus_on_load: !!prefilledUser,
-            placeholder: {
-              type: "plain_text",
-              text: "say something nice to them!",
-            },
-          },
-        },
-      ],
-    },
+    view: giveHugModal({ prefilledUser }),
   });
 });
 
@@ -78,6 +41,7 @@ app.view("give_hug_modal", async (event) => {
       blocks: blocks(
         section("hugs sent! :neocat_heart:"),
         context("made by <@U09D42Q0ARJ>"),
+        actions(button("send another?").id("send_another")),
       ),
     },
   });
@@ -106,8 +70,27 @@ app.view("give_hug_modal", async (event) => {
   await sendHugToUser({ fromId, toId, message });
 });
 
+app.action("send_another", async (event) => {
+  await event.ack();
+  if (event.body.type !== "block_actions") {
+    console.warn(
+      "send_another action received with incorrect type (expected: block_actions)",
+    );
+    return;
+  }
+  if (!event.body.view) {
+    console.warn("send_another action received without associated view");
+    return;
+  }
+
+  await app.client.views.update({
+    view_id: event.body.view.id,
+    hash: event.body.view.hash,
+    view: giveHugModal({}),
+  });
+});
+
 app.action("give_hug_back", async (event) => {
-  console.log("give_hug_back");
   await event.ack();
 
   if (event.body.type !== "block_actions") {

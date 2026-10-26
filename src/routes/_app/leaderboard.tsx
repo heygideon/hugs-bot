@@ -9,12 +9,25 @@ import clsx from "clsx";
 import type z from "zod";
 import { getLeaderboard } from "~/actions/leaderboard";
 import { leaderboardSchema } from "~/actions/leaderboard/schemas";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from "~/components/Listbox";
 
 const leaderboardQuery = (data: z.infer<typeof leaderboardSchema>) =>
   queryOptions({
     queryKey: ["leaderboard", data],
     queryFn: ({ signal }) => getLeaderboard({ data, signal }),
   });
+
+const typeOptions = [{ id: "hug", value: "hug" }];
+const viewOptions = [
+  { id: "send", value: "senders" },
+  { id: "receive", value: "receivers" },
+  { id: "return", value: "returners" },
+];
 
 export const Route = createFileRoute("/_app/leaderboard")({
   validateSearch: leaderboardSchema,
@@ -38,30 +51,42 @@ function Home() {
     <>
       <h1 className="font-heading text-4xl font-semibold">leaderboard</h1>
       <div className="mt-6 flex gap-2">
-        <select
+        <Listbox
+          as="div"
           value={search.type}
-          onChange={(ev) =>
-            navigate({
-              search: (prev) => ({ ...prev, type: ev.target.value as any }),
-            })
+          onChange={(type) =>
+            navigate({ search: (prev) => ({ ...prev, type }) })
           }
-          className="flex h-10 w-32 items-center rounded-md border border-neutral-200 bg-white px-3 text-lg shadow-xs"
         >
-          <option value="hug">hugs</option>
-        </select>
-        <select
+          <ListboxButton>
+            {typeOptions.find((v) => v.id === search.type)?.value}
+          </ListboxButton>
+          <ListboxOptions>
+            {typeOptions.map(({ id, value }) => (
+              <ListboxOption key={id} value={id}>
+                {value}
+              </ListboxOption>
+            ))}
+          </ListboxOptions>
+        </Listbox>
+        <Listbox
+          as="div"
           value={search.view}
-          onChange={(ev) =>
-            navigate({
-              search: (prev) => ({ ...prev, view: ev.target.value as any }),
-            })
+          onChange={(view) =>
+            navigate({ search: (prev) => ({ ...prev, view }) })
           }
-          className="flex h-10 w-32 items-center rounded-md border border-neutral-200 bg-white px-3 text-lg shadow-xs"
         >
-          <option value="send">senders</option>
-          <option value="receive">receivers</option>
-          <option value="return">returners</option>
-        </select>
+          <ListboxButton>
+            {viewOptions.find((v) => v.id === search.view)?.value}
+          </ListboxButton>
+          <ListboxOptions>
+            {viewOptions.map(({ id, value }) => (
+              <ListboxOption key={id} value={id}>
+                {value}
+              </ListboxOption>
+            ))}
+          </ListboxOptions>
+        </Listbox>
         <input
           type="text"
           placeholder="to..."

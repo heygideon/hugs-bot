@@ -11,6 +11,7 @@ export const events = sqliteTable("events", {
   fromId: text("from_id").notNull(),
   toId: text("to_id").notNull(),
   type: text({ enum: ["hug_send", "hug_return"] }).notNull(),
+  source: text({ enum: ["workflow", "v1", "v2"] }).notNull(),
 
   // Idempotency key for hug_return
   idempotencyKey: text("idempotency_key"),

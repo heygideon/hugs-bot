@@ -98,6 +98,7 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
     type: "hug_send",
     fromId: opts.fromId,
     toId: opts.toId,
+    source: "v2",
   });
 }
 
@@ -142,6 +143,7 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
     type: "hug_return",
     fromId: opts.fromId,
     toId: opts.toId,
+    source: "v2",
     idempotencyKey: opts.ts,
   });
 }

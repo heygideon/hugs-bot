@@ -17,13 +17,22 @@ import {
 } from "~/components/Listbox";
 import UserCombobox from "~/components/UserCombobox";
 
+import neocatHeart from "~/assets/images/neocat_heart.png";
+import neocatBoop from "~/assets/images/neocat_boop_blush.png";
+import neocatPat from "~/assets/images/neocat_pat.png";
+import { useMemo } from "react";
+
 const leaderboardQuery = (data: z.infer<typeof leaderboardSchema>) =>
   queryOptions({
     queryKey: ["leaderboard", data],
     queryFn: ({ signal }) => getLeaderboard({ data, signal }),
   });
 
-const typeOptions = [{ id: "hug", value: "hug" }];
+const typeOptions = [
+  { id: "hug", value: "hug", emoji: neocatHeart },
+  { id: "boop", value: "boop", emoji: neocatBoop },
+  { id: "pat", value: "pat", emoji: neocatPat },
+];
 const viewOptions = [
   { id: "send", value: "senders" },
   { id: "receive", value: "receivers" },
@@ -43,6 +52,11 @@ function Home() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
+  const selectedType = useMemo(
+    () => typeOptions.find((v) => v.id === search.type) || typeOptions[0],
+    [search.type],
+  );
+
   const { data, isPlaceholderData } = useQuery({
     ...leaderboardQuery(search),
     placeholderData: keepPreviousData,
@@ -60,11 +74,25 @@ function Home() {
           }
         >
           <ListboxButton>
-            {typeOptions.find((v) => v.id === search.type)?.value}
+            <img
+              src={selectedType.emoji}
+              alt=""
+              width="20"
+              height="20"
+              className="mr-1.5"
+            />
+            {selectedType.value}
           </ListboxButton>
           <ListboxOptions>
-            {typeOptions.map(({ id, value }) => (
+            {typeOptions.map(({ id, value, emoji }) => (
               <ListboxOption key={id} value={id}>
+                <img
+                  src={emoji}
+                  alt=""
+                  width="20"
+                  height="20"
+                  // className="mr-1.5"
+                />
                 {value}
               </ListboxOption>
             ))}
@@ -115,6 +143,17 @@ function Home() {
               <div className="h-5 w-8 animate-pulse rounded-sm bg-neutral-200" />
             </div>
           ))}
+        </div>
+      ) : data.length === 0 ? (
+        <div
+          className={clsx(
+            "mt-6 flex h-14 items-center border-y border-neutral-200",
+            isPlaceholderData && "opacity-50",
+          )}
+        >
+          <p className="min-w-0 flex-1 text-center text-lg text-neutral-400 italic">
+            no data available
+          </p>
         </div>
       ) : (
         <div

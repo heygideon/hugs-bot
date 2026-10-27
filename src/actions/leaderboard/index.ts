@@ -19,7 +19,7 @@ export const getLeaderboard = createServerFn()
       .from(events)
       .where(
         and(
-          // like(events.type, `${type.output}%`)
+          like(events.type, `${data.type}%`),
           data.view === "return"
             ? like(events.type, "%return")
             : like(events.type, "%send"),

@@ -130,11 +130,11 @@ function Home() {
         />
       </div>
       {!data ? (
-        <div className="mt-6 border-t border-neutral-200 mask-b-from-0">
+        <div className="mt-6 border-t border-neutral-200 mask-b-from-0 dark:border-neutral-700">
           {Array.from({ length: 5 }).map((_, idx) => (
             <div
               key={idx}
-              className="flex h-14 items-center gap-2.5 border-b border-neutral-200"
+              className="flex h-14 items-center gap-2.5 border-b border-neutral-200 dark:border-neutral-700"
             >
               <div className="h-3.5 w-7 animate-pulse rounded-sm bg-neutral-200" />
               <div className="size-8 animate-pulse rounded-full bg-neutral-200" />
@@ -147,7 +147,7 @@ function Home() {
       ) : data.length === 0 ? (
         <div
           className={clsx(
-            "mt-6 flex h-14 items-center border-y border-neutral-200",
+            "mt-6 flex h-14 items-center border-y border-neutral-200 dark:border-neutral-700",
             isPlaceholderData && "opacity-50",
           )}
         >
@@ -158,21 +158,23 @@ function Home() {
       ) : (
         <div
           className={clsx(
-            "mt-6 border-t border-neutral-200 transition-opacity",
+            "mt-6 border-t border-neutral-200 transition-opacity dark:border-neutral-700",
             isPlaceholderData && "opacity-50",
           )}
         >
           {data.map((row, idx) => (
             <div
               key={row.userId}
-              className="flex h-14 items-center gap-2.5 border-b border-neutral-200"
+              className="flex h-14 items-center gap-2.5 border-b border-neutral-200 dark:border-neutral-700"
             >
-              <p className="w-7 text-neutral-500">#{idx + 1}</p>
+              <p className="w-7 text-neutral-500 dark:text-neutral-400">
+                #{idx + 1}
+              </p>
               <img
                 src={row.user.imageUrl}
                 width="32"
                 height="32"
-                className="rounded-full border border-neutral-200"
+                className="rounded-full border border-neutral-200 dark:border-neutral-700"
               />
               <p className="min-w-0 flex-1 truncate text-xl">
                 {row.user.displayName}

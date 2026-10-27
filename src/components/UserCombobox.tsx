@@ -68,7 +68,7 @@ export default function UserCombobox({
       <div className="relative">
         <div
           className={clsx(
-            "absolute top-2 left-2 size-6 overflow-clip rounded-full border border-neutral-300 transition-opacity",
+            "absolute top-2 left-2 size-6 overflow-clip rounded-full border border-neutral-200 transition-opacity dark:border-neutral-700",
             query && "opacity-50",
           )}
         >
@@ -86,7 +86,7 @@ export default function UserCombobox({
           onChange={(ev) => setQuery(ev.target.value)}
           displayValue={() => current?.display_name || ""}
           placeholder={placeholder}
-          className="flex h-10 w-64 items-center rounded-md border border-neutral-200 bg-white px-3 pl-9.5 text-lg shadow-xs"
+          className="flex h-10 w-64 items-center rounded-md border border-neutral-200 bg-white px-3 pl-9.5 text-lg shadow-xs dark:border-neutral-700 dark:bg-neutral-800"
         />
       </div>
       <ComboboxOptions
@@ -95,23 +95,27 @@ export default function UserCombobox({
           gap: 4,
         }}
         transition
-        className="w-(--input-width) origin-top rounded-md border border-neutral-200 bg-white p-1 text-lg shadow-xs transition outline-none data-closed:scale-y-95 data-closed:opacity-0"
+        className="w-(--input-width) origin-top rounded-md border border-neutral-200 bg-white p-1 text-lg shadow-xs transition outline-none data-closed:scale-y-95 data-closed:opacity-0 dark:border-neutral-700 dark:bg-neutral-800"
       >
         {!query ? (
-          <p className="px-2 py-1 text-neutral-500">
+          <p className="px-2 py-1 text-neutral-500 dark:text-neutral-400">
             start typing to search...
           </p>
         ) : !data ? (
-          <p className="px-2 py-1 text-neutral-500">loading...</p>
+          <p className="px-2 py-1 text-neutral-500 dark:text-neutral-400">
+            loading...
+          </p>
         ) : data.length === 0 ? (
-          <p className="px-2 py-1 text-neutral-500">no hugged users found</p>
+          <p className="px-2 py-1 text-neutral-500 dark:text-neutral-400">
+            no hugged users found
+          </p>
         ) : (
           data.map((user) => (
             <ComboboxOption
               key={user.id}
               value={user.id}
               className={clsx(
-                "group flex h-9 items-center gap-1.5 rounded-xs px-2 transition-opacity outline-none data-focus:bg-rose-200 data-selected:font-semibold",
+                "group flex h-9 items-center gap-1.5 rounded-xs px-2 transition-opacity outline-none data-focus:bg-rose-200 data-selected:font-semibold dark:data-focus:bg-rose-900",
                 isPlaceholderData && "opacity-50",
               )}
             >

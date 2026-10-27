@@ -21,7 +21,7 @@ export function ListboxButton({
     <ListboxButtonBase
       {...props}
       className={clsx(
-        "flex h-10 w-40 items-center rounded-md border border-neutral-200 bg-white px-3 text-lg shadow-xs",
+        "flex h-10 w-40 items-center rounded-md border border-neutral-200 bg-white px-3 text-lg shadow-xs dark:border-neutral-700 dark:bg-neutral-800",
         className,
       )}
     >
@@ -41,7 +41,7 @@ export function ListboxOptions({ className, ...props }: ListboxOptionsProps) {
       }}
       transition
       className={clsx(
-        "w-(--button-width) origin-top rounded-md border border-neutral-200 bg-white p-1 text-lg shadow-xs transition outline-none data-closed:scale-y-95 data-closed:opacity-0",
+        "w-(--button-width) origin-top rounded-md border border-neutral-200 bg-white p-1 text-lg shadow-xs transition outline-none data-closed:scale-y-95 data-closed:opacity-0 dark:border-neutral-700 dark:bg-neutral-800",
         className,
       )}
     />
@@ -56,7 +56,7 @@ export function ListboxOption({
     <ListboxOptionBase
       {...props}
       className={clsx(
-        "group flex h-9 items-center gap-1.5 rounded-xs px-2 outline-none data-focus:bg-rose-200 data-selected:font-semibold",
+        "group flex h-9 items-center gap-1.5 rounded-xs px-2 outline-none data-focus:bg-rose-200 data-selected:font-semibold dark:data-focus:bg-rose-900",
         className,
       )}
     >

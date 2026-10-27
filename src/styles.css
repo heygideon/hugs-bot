@@ -4,6 +4,8 @@
   --font-serif: "Crimson Pro Variable", serif;
   --font-heading: "Platypi Variable", serif;
   --default-font-family: var(--font-serif);
+
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
 }
 
 @layer base {

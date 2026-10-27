@@ -108,6 +108,7 @@ export default function UserCombobox({
         ) : (
           data.map((user) => (
             <ComboboxOption
+              key={user.id}
               value={user.id}
               className={clsx(
                 "group flex h-9 items-center gap-1.5 rounded-xs px-2 transition-opacity outline-none data-focus:bg-rose-200 data-selected:font-semibold",

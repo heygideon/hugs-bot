@@ -15,6 +15,7 @@ import {
   ListboxOption,
   ListboxOptions,
 } from "~/components/Listbox";
+import UserCombobox from "~/components/UserCombobox";
 
 const leaderboardQuery = (data: z.infer<typeof leaderboardSchema>) =>
   queryOptions({
@@ -50,7 +51,7 @@ function Home() {
   return (
     <>
       <h1 className="font-heading text-4xl font-semibold">leaderboard</h1>
-      <div className="mt-6 flex gap-2">
+      <div className="mt-6 flex items-center gap-2">
         <Listbox
           as="div"
           value={search.type}
@@ -87,10 +88,17 @@ function Home() {
             ))}
           </ListboxOptions>
         </Listbox>
-        <input
-          type="text"
-          placeholder="to..."
-          className="flex h-10 w-64 items-center rounded-md border border-neutral-200 bg-white px-3 text-lg shadow-xs"
+        <p className="text-lg italic">
+          {search.view === "receive" ? "from" : "to"}
+        </p>
+        <UserCombobox
+          value={search.user || null}
+          onChange={(user) =>
+            navigate({
+              search: (prev) => ({ ...prev, user: user ?? undefined }),
+            })
+          }
+          placeholder="anyone"
         />
       </div>
       {!data ? (

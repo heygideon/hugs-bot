@@ -1,17 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { leaderboardSchema } from "./schemas";
 import { events } from "~/db/schema";
-import { and, count, desc, like } from "drizzle-orm";
+import { and, count, desc, eq, like } from "drizzle-orm";
 import { db } from "~/db";
 import { getUserInfo } from "~/lib/cachet";
 
 export const getLeaderboard = createServerFn()
   .validator(leaderboardSchema)
   .handler(async ({ data }) => {
-    const userId = data.view === "receive" ? events.toId : events.fromId;
+    const groupId = data.view === "receive" ? events.toId : events.fromId;
+    const filterId = data.view === "receive" ? events.fromId : events.toId;
+
     const leaderboard = await db
       .select({
-        userId,
+        userId: groupId,
         count: count(events.id),
       })
       .from(events)
@@ -21,9 +23,10 @@ export const getLeaderboard = createServerFn()
           data.view === "return"
             ? like(events.type, "%return")
             : like(events.type, "%send"),
+          data.user ? eq(filterId, data.user) : undefined,
         ),
       )
-      .groupBy(userId)
+      .groupBy(groupId)
       .orderBy((query) => desc(query.count))
       .limit(50);
 

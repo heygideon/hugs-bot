@@ -65,7 +65,7 @@ function Home() {
   return (
     <>
       <h1 className="font-heading text-4xl font-semibold">leaderboard</h1>
-      <div className="mt-6 flex items-center gap-2">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
         <Listbox
           as="div"
           value={search.type}

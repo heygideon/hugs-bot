@@ -44,7 +44,7 @@ function Home() {
         send hugs in the Hack Club Slack!
       </p>
 
-      <div className="mt-8 grid grid-cols-2 gap-4">
+      <div className="mt-8 grid grid-cols-1 gap-x-4 @2xl:grid-cols-2">
         <div className="border-y border-neutral-200 pt-4 pb-5">
           <p className="text-xl font-semibold">send a hug</p>
           <div className="mt-2 flex h-10 max-w-fit items-center gap-2 rounded-md border border-neutral-200 bg-white pr-1.5 pl-3 shadow-xs">
@@ -52,7 +52,7 @@ function Home() {
             <CopyButton text="/give-hug" />
           </div>
         </div>
-        <div className="border-y border-neutral-200 pt-4 pb-5">
+        <div className="border-b border-neutral-200 pt-4 pb-5 @2xl:border-t">
           <p className="text-xl font-semibold">send a hug, and pre-fill user</p>
           <div className="mt-2 flex h-10 max-w-fit items-center gap-3 rounded-md border border-neutral-200 bg-white pr-1.5 pl-3 shadow-xs">
             <p className="font-mono">

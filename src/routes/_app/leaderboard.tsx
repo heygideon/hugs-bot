@@ -176,10 +176,15 @@ function Home() {
                 height="32"
                 className="rounded-full border border-neutral-200 dark:border-neutral-700"
               />
-              <p className="min-w-0 flex-1 truncate text-xl">
+              <a
+                href={`https://hackclub.enterprise.slack.com/team/${row.userId}`}
+                className="min-w-0 shrink truncate text-xl underline-offset-2 hover:text-rose-600 hover:underline dark:hover:text-rose-400"
+              >
                 {row.user.displayName}
+              </a>
+              <p className="grow text-right text-xl font-semibold">
+                {row.count}
               </p>
-              <p className="text-xl font-semibold">{row.count}</p>
             </div>
           ))}
         </div>

@@ -1,8 +1,41 @@
 import { actions, blocks, button, context, section, text } from "slack.ts";
 import { db } from "~/db";
 import { events } from "~/db/schema";
-import type { View } from "@slack/types";
+import type { PlainTextOption, View } from "@slack/types";
 import { app, CHANNEL } from "./app";
+import z from "zod";
+
+export const hugTypeOpts = [
+  {
+    value: "hug" as const,
+    text: { type: "plain_text", text: ":neocat_heart: hug" },
+  },
+  {
+    value: "boop" as const,
+    text: { type: "plain_text", text: ":neocat_boop_blush: boop" },
+  },
+  {
+    value: "pat" as const,
+    text: { type: "plain_text", text: ":neocat_pat: pat" },
+  },
+] satisfies PlainTextOption[];
+export const hugTypeSchema = z
+  .enum(hugTypeOpts.map((v) => v.value))
+  .catch("hug");
+export type HugType = z.infer<typeof hugTypeSchema>;
+
+type Emoji = `:${string}:`;
+export const hugTypeEmojis: {
+  [K in HugType]: { default: Emoji; from?: Emoji; to?: Emoji };
+} = {
+  hug: {
+    default: ":neocat_hug_heart:",
+    from: ":neocat_heart:",
+    to: ":neocat_snuggle:",
+  },
+  boop: { default: ":neocat_boop_blush:" },
+  pat: { default: ":neocat_pat:" },
+};
 
 export const giveHugModal = (opts: { prefilledUser?: string }) =>
   ({
@@ -19,6 +52,18 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
     close: { type: "plain_text", text: "no hug" },
 
     blocks: [
+      {
+        type: "input",
+        block_id: "type_block",
+        label: { type: "plain_text", text: "type" },
+        element: {
+          type: "static_select",
+          action_id: "type",
+          placeholder: { type: "plain_text", text: "select a type..." },
+          initial_option: hugTypeOpts[0],
+          options: hugTypeOpts,
+        },
+      },
       {
         type: "input",
         block_id: "user_block",
@@ -51,39 +96,47 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
   }) satisfies View;
 
 interface SendHugToUserOpts {
+  type: HugType;
   fromId: string;
   toId: string;
   message?: string;
 }
 export async function sendHugToUser(opts: SendHugToUserOpts) {
+  const defaultEmoji = hugTypeEmojis[opts.type].default;
+  const fromEmoji = hugTypeEmojis[opts.type].from || defaultEmoji;
+
   await app.client.chat.postMessage({
     channel: opts.toId,
-    text: `you got a hug from <@${opts.fromId}>!`,
+    text: `you got a ${opts.type} from <@${opts.fromId}>!`,
     blocks: blocks(
-      section(`:neocat_hug_heart: you got a hug from <@${opts.fromId}>!`),
+      section(`${defaultEmoji} you got a ${opts.type} from <@${opts.fromId}>!`),
       ...(opts.message
         ? [section(`they said:\n>${opts.message.split("\n").join("\n>")}`)]
         : []),
       actions(
-        button(text(":neocat_aww: give hug back!").mrkdwn(false).emoji(true))
+        button(
+          text(`:neocat_aww: give ${opts.type} back!`)
+            .mrkdwn(false)
+            .emoji(true),
+        )
           .style("primary")
           .id("give_hug_back")
-          .value(opts.toId),
+          .value(`${opts.toId}.${opts.type}`),
       ),
     ),
   });
   await app.client.chat.postMessage({
     channel: CHANNEL,
-    text: `<@${opts.fromId}> sent a hug to <@${opts.toId}>!`,
+    text: `<@${opts.fromId}> sent a ${opts.type} to <@${opts.toId}>!`,
     blocks: blocks(
       section(
-        `:neocat_heart: <@${opts.fromId}> sent a hug to <@${opts.toId}>!`,
+        `${fromEmoji} <@${opts.fromId}> sent a ${opts.type} to <@${opts.toId}>!`,
       ),
     ),
   });
 
   await db.insert(events).values({
-    type: "hug_send",
+    type: `${opts.type}_send`,
     fromId: opts.fromId,
     toId: opts.toId,
     source: "v2",
@@ -91,44 +144,50 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
 }
 
 interface ReturnHugToUserOpts {
+  type: HugType;
   channel: string;
   ts: string;
   fromId: string;
   toId: string;
 }
 export async function returnHugToUser(opts: ReturnHugToUserOpts) {
+  const defaultEmoji = hugTypeEmojis[opts.type].default;
+  const toEmoji = hugTypeEmojis[opts.type].to || defaultEmoji;
+
   // Update original message
   await app.client.chat.update({
     channel: opts.channel,
     ts: opts.ts,
     blocks: blocks(
-      section(`:neocat_hug_heart: you got a hug from <@${opts.toId}>!`),
-      section(`you clicked *give hug back!*`),
-      context("send your own hugs! `/give-hug`"),
+      section(`${defaultEmoji} you got a ${opts.type} from <@${opts.toId}>!`),
+      section(`you clicked *give ${opts.type} back!*`),
+      context(`send your own ${opts.type}s! \`/give-hug\``),
     ),
   });
 
   await app.client.chat.postMessage({
     channel: opts.toId,
-    text: `<@${opts.fromId}> gave you a hug back!`,
+    text: `<@${opts.fromId}> gave you a ${opts.type} back!`,
     blocks: blocks(
-      section(`:neocat_hug_heart: <@${opts.fromId}> gave you a hug back!`),
-      context("send more hugs! `/give-hug`"),
+      section(
+        `${defaultEmoji} <@${opts.fromId}> gave you a ${opts.type} back!`,
+      ),
+      context(`send more ${opts.type}s! \`/give-hug\``),
     ),
   });
 
   await app.client.chat.postMessage({
     channel: CHANNEL,
-    text: `<@${opts.fromId}> sent a hug back to <@${opts.toId}>!`,
+    text: `<@${opts.fromId}> sent a ${opts.type} back to <@${opts.toId}>!`,
     blocks: blocks(
       section(
-        `:neocat_snuggle: <@${opts.fromId}> sent a hug back to <@${opts.toId}>!`,
+        `${toEmoji} <@${opts.fromId}> sent a ${opts.type} back to <@${opts.toId}>!`,
       ),
     ),
   });
 
   await db.insert(events).values({
-    type: "hug_return",
+    type: `${opts.type}_return`,
     fromId: opts.fromId,
     toId: opts.toId,
     source: "v2",

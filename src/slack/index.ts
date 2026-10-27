@@ -1,6 +1,11 @@
 import { createHandler } from "@vercel/slack-bolt";
 import { actions, blocks, button, context, section } from "slack.ts";
-import { giveHugModal, returnHugToUser, sendHugToUser } from "./helpers";
+import {
+  giveHugModal,
+  hugTypeSchema,
+  returnHugToUser,
+  sendHugToUser,
+} from "./helpers";
 import { db } from "~/db";
 import { events } from "~/db/schema";
 import { eq } from "drizzle-orm";
@@ -56,14 +61,17 @@ app.view("give_hug_modal", async (event) => {
     return;
   }
 
+  const type = hugTypeSchema.parse(
+    values.type_block?.type?.selected_option?.value,
+  );
   const fromId = event.body.user.id;
-  const toId = values.user_block.user.selected_user as string;
-  const message = values.message_block.message.value as string;
+  const toId = values.user_block.user.selected_user!;
+  const message = values.message_block.message.value!;
 
   const allowed = await ratelimit(fromId);
   if (!allowed) return;
 
-  await sendHugToUser({ fromId, toId, message });
+  await sendHugToUser({ type, fromId, toId, message });
 });
 
 app.action("send_another", async (event) => {
@@ -116,7 +124,8 @@ app.action("give_hug_back", async (event) => {
   const channel = event.body.channel.id;
   const ts = event.body.message.ts;
   const fromId = event.body.user.id;
-  const toId = event.action.value;
+  const [toId, _type] = event.action.value.split(".");
+  const type = hugTypeSchema.parse(_type);
 
   const [existing] = await db
     .select({ id: events.id })
@@ -125,7 +134,8 @@ app.action("give_hug_back", async (event) => {
     .limit(1);
   if (existing) return;
 
-  await returnHugToUser({ channel, ts, fromId, toId });
+  await returnHugToUser({ type, channel, ts, fromId, toId });
 });
 
-export const handleSlackEvent = createHandler(app, receiver);
+export const handleSlackEvent = (req: Request) =>
+  createHandler(app, receiver)(req);

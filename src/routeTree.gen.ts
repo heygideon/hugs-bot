@@ -13,6 +13,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppLeaderboardRouteImport } from './routes/_app/leaderboard'
 import { Route as ApiEventsRouteImport } from './routes/api.events'
+import { Route as ApiForwardRouteImport } from './routes/api.forward'
 
 const AppRouteRoute = AppRouteRouteImport.update({
   id: '/_app',
@@ -33,15 +34,22 @@ const ApiEventsRoute = ApiEventsRouteImport.update({
   path: '/api/events',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiForwardRoute = ApiForwardRouteImport.update({
+  id: '/api/forward',
+  path: '/api/forward',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/leaderboard': typeof AppLeaderboardRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/forward': typeof ApiForwardRoute
 }
 export interface FileRoutesByTo {
   '/leaderboard': typeof AppLeaderboardRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/forward': typeof ApiForwardRoute
   '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -49,19 +57,27 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_app/leaderboard': typeof AppLeaderboardRoute
   '/api/events': typeof ApiEventsRoute
+  '/api/forward': typeof ApiForwardRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/leaderboard' | '/api/events'
+  fullPaths: '/' | '/leaderboard' | '/api/events' | '/api/forward'
   fileRoutesByTo: FileRoutesByTo
-  to: '/leaderboard' | '/api/events' | '/'
-  id: '__root__' | '/_app' | '/_app/leaderboard' | '/api/events' | '/_app/'
+  to: '/leaderboard' | '/api/events' | '/api/forward' | '/'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/leaderboard'
+    | '/api/events'
+    | '/api/forward'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   ApiEventsRoute: typeof ApiEventsRoute
+  ApiForwardRoute: typeof ApiForwardRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -94,6 +110,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/forward': {
+      id: '/api/forward'
+      path: '/api/forward'
+      fullPath: '/api/forward'
+      preLoaderRoute: typeof ApiForwardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -114,6 +137,7 @@ const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   ApiEventsRoute: ApiEventsRoute,
+  ApiForwardRoute: ApiForwardRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -137,5 +137,4 @@ app.action("give_hug_back", async (event) => {
   await returnHugToUser({ type, channel, ts, fromId, toId });
 });
 
-export const handleSlackEvent = (req: Request) =>
-  createHandler(app, receiver)(req);
+export const handleSlackEvent = createHandler(app, receiver);

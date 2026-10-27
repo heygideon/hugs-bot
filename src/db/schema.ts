@@ -42,3 +42,9 @@ export const rateLimits = sqliteTable(
   },
   (t) => [primaryKey({ columns: [t.userId, t.ts] })],
 );
+
+export const forwardingConfig = sqliteTable("forwarding_config", {
+  id: integer().primaryKey({ autoIncrement: true }),
+  forwardTo: text().notNull(),
+  forwardUids: text().notNull(),
+});

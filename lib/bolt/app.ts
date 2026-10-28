@@ -16,15 +16,12 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
   // Acknowledge command request
   await ack();
 
-  const dedupe = <T>(array: T[]) => [...new Set(array)];
-  const initial_users = dedupe(
-    command.text
-      .split(" ")
-      .map((user) => user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/)?.groups?.id)
-      .filter((x): x is string => !!x),
-  );
+  const initial_user = command.text
+    .split(" ")
+    .map((user) => user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/)?.groups?.id)
+    .filter((x): x is string => !!x)[0];
 
-  const result = await client.views.open({
+  await client.views.open({
     trigger_id: command.trigger_id,
     view: {
       type: "modal",
@@ -51,14 +48,10 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
           label: { type: "plain_text", text: "people to hug" },
           optional: false,
           element: {
-            type: "multi_users_select",
+            type: "users_select",
             action_id: "user",
-            initial_users: initial_users,
-            max_selected_items:
-              command.user_id === "U09D42Q0ARJ"
-                ? undefined // rules for thee but not for me
-                : 50,
-            focus_on_load: initial_users.length === 0,
+            initial_user,
+            // focus_on_load: !!initial_user,
             placeholder: {
               type: "plain_text",
               text: "select users",
@@ -89,7 +82,7 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
 });
 
 app.view("give_hug_modal", async ({ ack, body, view, client }) => {
-  const users = view.state.values.user_block.user.selected_users!;
+  const user = view.state.values.user_block.user.selected_user!;
   const message = view.state.values.message_block.message.value;
 
   await ack({
@@ -128,64 +121,49 @@ app.view("give_hug_modal", async ({ ack, body, view, client }) => {
     },
   });
 
-  for (const user of users) {
-    await client.chat.postMessage({
-      channel: user,
-      text: `you got a hug from <@${body.user.id}>!`,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `:neocat_hug_heart: you got a hug from <@${body.user.id}>!${
-              message
-                ? `\n\nthey said:\n>${message.split("\n").join("\n>")}`
-                : ""
-            }`,
-          },
+  await client.chat.postMessage({
+    channel: user,
+    text: `you got a hug from <@${body.user.id}>!`,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `:neocat_hug_heart: you got a hug from <@${body.user.id}>!${
+            message ? `\n\nthey said:\n>${message.split("\n").join("\n>")}` : ""
+          }`,
         },
-        {
-          type: "actions",
-          elements: [
-            {
-              type: "button",
-              style: "primary",
-              text: {
-                type: "plain_text",
-                text: ":neocat_aww: give hug back!",
-                emoji: true,
-              },
-              value: body.user.id,
-              action_id: "give_hug_back",
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            style: "primary",
+            text: {
+              type: "plain_text",
+              text: ":neocat_aww: give hug back!",
+              emoji: true,
             },
-          ],
-        },
-      ],
-    });
-  }
+            value: body.user.id,
+            action_id: "give_hug_back",
+          },
+        ],
+      },
+    ],
+  });
 
   await client.chat.postMessage({
     channel: "C09RR27E2HL", // #hugs
-    text: `<@${body.user.id}> sent a hug to ${users.length > 1 ? `${users.length} people` : `<@${users[0]}>`}!`,
+    text: `<@${body.user.id}> sent a hug to $<@${user}>!`,
     blocks: [
-      ...users.slice(0, 49).map((user) => ({
+      {
         type: "section",
         text: {
           type: "mrkdwn",
           text: `:neocat_heart: <@${body.user.id}> *sent a hug* to <@${user}>!`,
         },
-      })),
-      ...(users.length > 50
-        ? [
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `_+ ${users.length - 50} more_`,
-              },
-            },
-          ]
-        : []),
+      },
     ],
   });
 });

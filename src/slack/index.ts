@@ -1,6 +1,7 @@
 import { createHandler } from "@vercel/slack-bolt";
 import { actions, blocks, button, context, section } from "slack.ts";
 import {
+  giveHugAnimation,
   giveHugModal,
   hugTypeSchema,
   returnHugToUser,
@@ -35,6 +36,11 @@ app.command("/give-hug-v2", async (event) => {
 });
 
 app.view("give_hug_modal", async (event) => {
+  const values = event.view.state.values;
+  const type = hugTypeSchema.parse(
+    values.type_block?.type?.selected_option?.value,
+  );
+
   await event.ack({
     response_action: "update",
     view: {
@@ -48,14 +54,14 @@ app.view("give_hug_modal", async (event) => {
         text: "close",
       },
       blocks: blocks(
-        section("hugs sent! :neocat_heart:"),
+        giveHugAnimation(),
+        section(`${type} sent!`),
         context("made by <@U09D42Q0ARJ>"),
         actions(button("send another?").id("send_another")),
       ),
     },
   });
 
-  const values = event.view.state.values;
   if (!values.user_block?.user) {
     console.warn(
       "give_hug_modal submitted without an associated user_block.user",
@@ -69,9 +75,6 @@ app.view("give_hug_modal", async (event) => {
     return;
   }
 
-  const type = hugTypeSchema.parse(
-    values.type_block?.type?.selected_option?.value,
-  );
   const fromId = event.body.user.id;
   const toId = values.user_block.user.selected_user!;
   const message = values.message_block.message.value!;

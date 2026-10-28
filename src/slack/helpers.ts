@@ -5,6 +5,19 @@ import type { PlainTextOption, View } from "@slack/types";
 import { app, CHANNEL } from "./app";
 import z from "zod";
 
+export const giveHugAnimation = () =>
+  section(
+    ["t", "b"]
+      .reduce((acc, l) => {
+        const row = Array.from({ length: 6 }).map(
+          (_, i) => `:give-hug-2x-${l}-${i + 1}:`,
+        );
+        acc.push(row.join(""));
+        return acc;
+      }, [] as string[])
+      .join("\n"),
+  );
+
 export const hugTypeOpts = [
   {
     value: "hug" as const,
@@ -43,7 +56,7 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
     callback_id: "give_hug_modal",
     external_id: "give_hug_modal",
 
-    title: { type: "plain_text", text: "give a hug" },
+    title: { type: "plain_text", text: "give a hugs" },
     submit: {
       type: "plain_text",
       text: "send hug :neocat_heart:",

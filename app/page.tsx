@@ -1,71 +1,54 @@
 "use client";
 
-import { IconCheck, IconCopy } from "@tabler/icons-react";
 import Image from "next/image";
 import neocatHeart from "@/assets/neocat_heart.png";
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import dayjs from "dayjs";
 
-const command = "/give-hug @user";
+const end = dayjs("2026-10-29T22:00:00.000Z");
 
 export default function Home() {
-  const [copied, setCopied] = useState(false);
-  const copiedTimeout = useRef<number | null>(null);
-
-  const copy = useCallback(() => {
-    navigator.clipboard.writeText(command);
-    setCopied(true);
-
-    if (copiedTimeout.current) {
-      clearTimeout(copiedTimeout.current);
-    }
-    copiedTimeout.current = window.setTimeout(() => {
-      setCopied(false);
-      copiedTimeout.current = null;
-    }, 2000);
+  const [date, setDate] = useState(() => dayjs());
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDate(dayjs());
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const seconds = end.diff(dayjs(), "second");
+      if (seconds > 60) return;
+
+      const req = await fetch("/leaderboard", { redirect: "manual" });
+      if (req.ok || (!req.ok && req.type === "opaqueredirect")) {
+        window.location.reload();
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const countdown = useMemo(() => {
+    const hours = Math.max(0, end.diff(date, "hour"));
+    const minutes = Math.max(0, end.diff(date, "minute") % 60);
+    const seconds = Math.max(0, end.diff(date, "second") % 60);
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }, [date]);
+
   return (
-    <div className="h-full relative bg-linear-to-br from-rose-200 via-neutral-50 to-red-200 p-8 flex flex-col items-center justify-center">
-      <div className="flex gap-x-6 gap-y-4 max-sm:flex-col items-center">
+    <div className="h-full p-8 flex flex-col items-center justify-center">
+      <div>
         <Image
           src={neocatHeart}
           alt=""
-          className="size-32 animate-bounce rotate-3"
+          className="size-16 animate-bounce rotate-3"
         />
-        <div className="max-sm:text-center flex flex-col max-sm:items-center">
-          <h1 className="text-4xl font-semibold">send a hug</h1>
-          <div className="mt-2 w-fit h-12 gap-2 p-2 flex text-lg items-center bg-white/50 border border-neutral-300 rounded-lg">
-            <div className="flex text-neutral-600 select-all items-center px-2">
-              <span>{command}</span>
-            </div>
-            <button
-              type="button"
-              disabled={copied}
-              onClick={copy}
-              className="size-8 grid place-items-center not-disabled:hover:bg-neutral-200 transition rounded-sm"
-            >
-              {copied ? (
-                <IconCheck className="size-4 text-rose-700" />
-              ) : (
-                <IconCopy className="size-4" />
-              )}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="absolute bottom-0 inset-x-0 p-4">
-        <p className="text-neutral-600 text-center text-sm">
-          made with affection by{" "}
-          <a
-            href="https://gideon.sh"
-            target="_blank"
-            rel="noopener"
-            className="text-rose-700 hover:text-rose-900 hover:underline underline-offset-2"
-          >
-            gideon
-          </a>{" "}
-          for hack clubbers
+        <p className="mt-2 text-xl text-neutral-500 dark:text-neutral-400">
+          something new is <em>within reach...</em>
+        </p>
+        <p className="font-heading tabular-nums mt-1 text-5xl font-semibold">
+          {countdown}
         </p>
       </div>
     </div>

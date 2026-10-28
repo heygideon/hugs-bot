@@ -14,7 +14,37 @@ const app = new App({
 
 app.command("/give-hug", async ({ client, command, ack, respond }) => {
   // Acknowledge command request
-  await ack();
+  await ack({
+    response_type: "ephemeral",
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: ":give-hug-1x-1::give-hug-1x-2::give-hug-1x-3:\nsomething new is _within reach..._",
+        },
+      },
+      {
+        type: "actions",
+        elements: [
+          {
+            type: "button",
+            url: "https://time.cs50.io/20261029T1000+0000?title=hugs+v2&location=https%3A%2F%2Fheya.gdn%2Fhugs",
+            text: { type: "plain_text", text: "save the date" },
+          },
+        ],
+      },
+      {
+        type: "context",
+        elements: [
+          {
+            type: "plain_text",
+            text: "~ 28th october, 10pm gmt",
+          },
+        ],
+      },
+    ],
+  });
 
   const initial_user = command.text
     .split(" ")

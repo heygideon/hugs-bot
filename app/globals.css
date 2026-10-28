@@ -10,9 +10,10 @@
   html {
     @apply h-full;
   }
-}
 
-@utility animate-spin-slow {
-  @apply animate-spin;
-  animation-duration: 60s;
+  html {
+    background: url("/noise.png") repeat;
+    color-scheme: light dark;
+    @apply bg-white dark:bg-neutral-900 dark:text-white;
+  }
 }

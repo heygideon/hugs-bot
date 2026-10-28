@@ -13,6 +13,7 @@
     "@slack/bolt": "^4.6.0",
     "@tabler/icons-react": "^3.36.0",
     "@vercel/slack-bolt": "^1.0.3",
+    "dayjs": "^1.11.23",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-dom": "19.2.3"

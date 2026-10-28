@@ -65,7 +65,7 @@ async function tryForwardRequest(request: Request) {
   });
   try {
     const res = await fetch(newRequest, {
-      signal: AbortSignal.timeout(1000), // timeout of 1000ms is probably enough!
+      // signal: AbortSignal.timeout(1000), // timeout of 1000ms isn't enough
     });
     if (res.ok) return res;
   } catch (e) {

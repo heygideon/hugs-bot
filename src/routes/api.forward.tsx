@@ -10,6 +10,7 @@ const forwardSchema = z.object({
   set: z.enum(["on", "off"]),
   forwardTo: z.union([z.httpUrl(), z.url({ hostname: /^localhost$/ })]),
   forwardUids: z.array(z.string().trim()).min(1),
+  ts: z.number().int().positive(),
 });
 async function sha256(value: string) {
   const data = new TextEncoder().encode(value);
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/api/forward")({
           return new Response("Bad request", { status: 400 });
         }
 
-        const { secret, set, forwardTo, forwardUids } = data;
+        const { secret, set, forwardTo, forwardUids, ts } = data;
         const secretHash = await sha256(secret);
         const storedHash = await sha256(process.env.FORWARD_SECRET || "");
         if (
@@ -42,20 +43,20 @@ export const Route = createFileRoute("/api/forward")({
         if (set === "on") {
           await db
             .insert(forwardingConfig)
-            .values({ id: 1, forwardTo, forwardUids })
+            .values({ id: 1, forwardTo, forwardUids, ts })
             .onConflictDoUpdate({
               target: [forwardingConfig.id],
-              set: { forwardTo, forwardUids },
+              set: { forwardTo, forwardUids, ts },
             });
         } else {
           // * when vite restarts, it sometimes sends "off" after "on"
-          // * so only delete the entry if it matches exactly
+          // * so only delete the entry if it matches url and ts
           await db
             .delete(forwardingConfig)
             .where(
               and(
                 eq(forwardingConfig.forwardTo, forwardTo),
-                eq(forwardingConfig.forwardUids, forwardUids),
+                eq(forwardingConfig.ts, ts),
               ),
             );
         }

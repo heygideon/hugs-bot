@@ -6,6 +6,8 @@
 import { styleText } from "node:util";
 import type { Plugin } from "vite";
 
+const ts = Date.now();
+
 async function setForwardingOn() {
   const secret = process.env.FORWARD_SECRET;
   const productionUrl = process.env.PRODUCTION_URL;
@@ -35,6 +37,7 @@ async function setForwardingOn() {
       set: "on",
       forwardTo,
       forwardUids: forwardUids.split(","),
+      ts,
     }),
   });
   if (res.ok) {
@@ -65,6 +68,7 @@ async function setForwardingOff() {
       set: "off",
       forwardTo,
       forwardUids: forwardUids.split(","),
+      ts,
     }),
   });
   if (res.ok) {

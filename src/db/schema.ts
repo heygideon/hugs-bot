@@ -5,6 +5,7 @@ import {
   text,
   serial,
   timestamp,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 export const events = pgTable("events", {
@@ -43,4 +44,5 @@ export const forwardingConfig = pgTable("forwarding_config", {
   id: integer().primaryKey(),
   forwardTo: text("forward_to").notNull(),
   forwardUids: text("forward_uids").array().notNull(),
+  ts: bigint({ mode: "number" }).notNull(),
 });

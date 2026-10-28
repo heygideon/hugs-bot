@@ -68,7 +68,9 @@ async function tryForwardRequest(request: Request) {
       signal: AbortSignal.timeout(1000), // timeout of 1000ms is probably enough!
     });
     if (res.ok) return res;
-  } catch (e) {}
+  } catch (e) {
+    console.warn("Error when forwarding request:", e);
+  }
 
   return null;
 }

@@ -29,7 +29,7 @@ app.command("/give-hug", async ({ client, command, ack, respond }) => {
         elements: [
           {
             type: "button",
-            url: "https://time.cs50.io/20261029T1000+0000?title=hugs+v2&location=https%3A%2F%2Fheya.gdn%2Fhugs",
+            url: "https://time.cs50.io/20261029T2200+0000?title=hugs+v2&location=https%3A%2F%2Fheya.gdn%2Fhugs",
             text: { type: "plain_text", text: "save the date" },
           },
         ],

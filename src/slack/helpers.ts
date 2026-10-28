@@ -123,7 +123,7 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
         )
           .style("primary")
           .id("give_hug_back")
-          .value(`${opts.toId}.${opts.type}`),
+          .value(`${opts.fromId}.${opts.type}`),
       ),
     ),
   });

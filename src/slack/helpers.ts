@@ -54,7 +54,6 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
   ({
     type: "modal",
     callback_id: "give_hug_modal",
-    external_id: "give_hug_modal",
 
     title: { type: "plain_text", text: "give a hug" },
     submit: {

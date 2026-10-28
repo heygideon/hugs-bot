@@ -12,7 +12,7 @@ import { eq } from "drizzle-orm";
 import { ratelimit } from "~/lib/ratelimit";
 import { app, receiver } from "./app";
 
-app.command("/give-hug-local", async (event) => {
+app.command("/give-hug-v2", async (event) => {
   if (event.body.user_id !== "U09D42Q0ARJ") {
     await event.ack({
       response_type: "ephemeral",

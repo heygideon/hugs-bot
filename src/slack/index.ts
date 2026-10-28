@@ -13,6 +13,14 @@ import { ratelimit } from "~/lib/ratelimit";
 import { app, receiver } from "./app";
 
 app.command("/give-hug-local", async (event) => {
+  if (event.body.user_id !== "U09D42Q0ARJ") {
+    await event.ack({
+      response_type: "ephemeral",
+      text: "not your time yet! wait a little longer <3",
+    });
+    return;
+  }
+
   await event.ack();
 
   const prefilledUser = event.body.text

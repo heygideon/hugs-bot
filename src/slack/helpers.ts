@@ -56,7 +56,7 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
     callback_id: "give_hug_modal",
     external_id: "give_hug_modal",
 
-    title: { type: "plain_text", text: "give a hugs" },
+    title: { type: "plain_text", text: "give a hug" },
     submit: {
       type: "plain_text",
       text: "send hug :neocat_heart:",
@@ -65,6 +65,15 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
     close: { type: "plain_text", text: "no hug" },
 
     blocks: [
+      ...(process.env.NODE_ENV === "production"
+        ? []
+        : [
+            {
+              type: "alert",
+              level: "warning",
+              text: { type: "mrkdwn", text: "*dev mode* " },
+            } as any,
+          ]),
       {
         type: "input",
         block_id: "type_block",

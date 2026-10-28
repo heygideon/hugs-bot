@@ -57,6 +57,11 @@ async function tryForwardRequest(request: Request) {
   if (!uid || !config) return null;
   if (!config.forwardUids.includes(uid)) return null;
 
+  // Don't recursively forward (if dev and prod happen to share a db)
+  const requestHost = new URL(request.url).host;
+  const forwardHost = new URL(config.forwardTo).host;
+  if (requestHost === forwardHost) return null;
+
   const newRequest = new Request(config.forwardTo, {
     headers: new Headers(request.headers),
     method: request.method,

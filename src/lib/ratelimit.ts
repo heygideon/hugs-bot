@@ -24,7 +24,7 @@ export async function ratelimit(userId: string) {
   // auto-cleanup old rate limit rows
   await db
     .delete(rateLimits)
-    .where(and(lt(rateLimits.ts, sql`(unixepoch())`), lt(rateLimits.count, 2)));
+    .where(and(lt(rateLimits.ts, new Date()), lt(rateLimits.count, 2)));
 
   return true;
 }

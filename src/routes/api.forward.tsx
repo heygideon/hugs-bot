@@ -42,17 +42,10 @@ export const Route = createFileRoute("/api/forward")({
         if (set === "on") {
           await db
             .insert(forwardingConfig)
-            .values({
-              id: 1,
-              forwardTo,
-              forwardUids: forwardUids.join(","),
-            })
+            .values({ id: 1, forwardTo, forwardUids })
             .onConflictDoUpdate({
               target: [forwardingConfig.id],
-              set: {
-                forwardTo,
-                forwardUids: forwardUids.join(","),
-              },
+              set: { forwardTo, forwardUids },
             });
         } else {
           // * when vite restarts, it sometimes sends "off" after "on"
@@ -62,7 +55,7 @@ export const Route = createFileRoute("/api/forward")({
             .where(
               and(
                 eq(forwardingConfig.forwardTo, forwardTo),
-                eq(forwardingConfig.forwardUids, forwardUids.join(",")),
+                eq(forwardingConfig.forwardUids, forwardUids),
               ),
             );
         }

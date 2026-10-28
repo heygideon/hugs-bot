@@ -1,13 +1,14 @@
-import { sql } from "drizzle-orm";
 import {
   integer,
   primaryKey,
-  sqliteTable,
+  pgTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  serial,
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const events = sqliteTable("events", {
-  id: integer().primaryKey({ autoIncrement: true }),
+export const events = pgTable("events", {
+  id: serial().primaryKey(),
   fromId: text("from_id").notNull(),
   toId: text("to_id").notNull(),
   type: text({
@@ -25,26 +26,21 @@ export const events = sqliteTable("events", {
   // Idempotency key for hug_return
   idempotencyKey: text("idempotency_key"),
 
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`)
-    .$onUpdateFn(() => sql`(unixepoch())`),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const rateLimits = sqliteTable(
+export const rateLimits = pgTable(
   "rate_limits",
   {
     userId: text("user_id").notNull(),
-    ts: integer()
-      .notNull()
-      .default(sql`(unixepoch())`),
+    ts: timestamp().notNull().defaultNow(),
     count: integer().notNull().default(1),
   },
   (t) => [primaryKey({ columns: [t.userId, t.ts] })],
 );
 
-export const forwardingConfig = sqliteTable("forwarding_config", {
-  id: integer().primaryKey({ autoIncrement: true }),
-  forwardTo: text().notNull(),
-  forwardUids: text().notNull(),
+export const forwardingConfig = pgTable("forwarding_config", {
+  id: integer().primaryKey(),
+  forwardTo: text("forward_to").notNull(),
+  forwardUids: text("forward_uids").array().notNull(),
 });

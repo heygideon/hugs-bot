@@ -102,10 +102,12 @@ interface SendHugToUserOpts {
   message?: string;
 }
 export async function sendHugToUser(opts: SendHugToUserOpts) {
+  console.time("send_hug");
+
   const defaultEmoji = hugTypeEmojis[opts.type].default;
   const fromEmoji = hugTypeEmojis[opts.type].from || defaultEmoji;
 
-  await app.client.chat.postMessage({
+  const dmPromise = app.client.chat.postMessage({
     channel: opts.toId,
     text: `you got a ${opts.type} from <@${opts.fromId}>!`,
     blocks: blocks(
@@ -125,7 +127,7 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
       ),
     ),
   });
-  await app.client.chat.postMessage({
+  const channelPromise = app.client.chat.postMessage({
     channel: CHANNEL,
     text: `<@${opts.fromId}> sent a ${opts.type} to <@${opts.toId}>!`,
     blocks: blocks(
@@ -134,13 +136,16 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
       ),
     ),
   });
-
-  await db.insert(events).values({
+  const dbInsertPromise = db.insert(events).values({
     type: `${opts.type}_send`,
     fromId: opts.fromId,
     toId: opts.toId,
     source: "v2",
   });
+
+  await Promise.all([dmPromise, channelPromise, dbInsertPromise]);
+
+  console.timeEnd("send_hug");
 }
 
 interface ReturnHugToUserOpts {
@@ -151,11 +156,13 @@ interface ReturnHugToUserOpts {
   toId: string;
 }
 export async function returnHugToUser(opts: ReturnHugToUserOpts) {
+  console.time("return_hug");
+
   const defaultEmoji = hugTypeEmojis[opts.type].default;
   const toEmoji = hugTypeEmojis[opts.type].to || defaultEmoji;
 
   // Update original message
-  await app.client.chat.update({
+  const updatePromise = app.client.chat.update({
     channel: opts.channel,
     ts: opts.ts,
     blocks: blocks(
@@ -165,7 +172,7 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
     ),
   });
 
-  await app.client.chat.postMessage({
+  const dmPromise = app.client.chat.postMessage({
     channel: opts.toId,
     text: `<@${opts.fromId}> gave you a ${opts.type} back!`,
     blocks: blocks(
@@ -175,8 +182,7 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
       context(`send more ${opts.type}s! \`/give-hug\``),
     ),
   });
-
-  await app.client.chat.postMessage({
+  const channelPromise = app.client.chat.postMessage({
     channel: CHANNEL,
     text: `<@${opts.fromId}> sent a ${opts.type} back to <@${opts.toId}>!`,
     blocks: blocks(
@@ -185,12 +191,15 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
       ),
     ),
   });
-
-  await db.insert(events).values({
+  const dbPromise = db.insert(events).values({
     type: `${opts.type}_return`,
     fromId: opts.fromId,
     toId: opts.toId,
     source: "v2",
     idempotencyKey: opts.ts,
   });
+
+  await Promise.all([updatePromise, dmPromise, channelPromise, dbPromise]);
+
+  console.timeEnd("return_hug");
 }

@@ -3,6 +3,7 @@ import { actions, blocks, button, context, section } from "slack.ts";
 import {
   giveHugAnimation,
   giveHugModal,
+  hugTypeOpts,
   hugTypeSchema,
   returnHugToUser,
   sendHugToUser,
@@ -13,27 +14,29 @@ import { eq } from "drizzle-orm";
 import { ratelimit } from "~/lib/ratelimit";
 import { app, receiver } from "./app";
 
-app.command("/give-hug-v2", async (event) => {
-  if (event.body.user_id !== "U09D42Q0ARJ") {
-    await event.ack({
-      response_type: "ephemeral",
-      text: "not your time yet! wait a little longer <3",
+for (const opt of hugTypeOpts) {
+  app.command(`/give-${opt.value}`, async (event) => {
+    if (event.body.user_id !== "U09D42Q0ARJ") {
+      await event.ack({
+        response_type: "ephemeral",
+        text: "not your time yet! wait a little longer <3",
+      });
+      return;
+    }
+
+    await event.ack();
+
+    const prefilledUser = event.body.text
+      .split(" ")
+      .map((user) => user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/)?.groups?.id)
+      .filter((x): x is string => !!x)[0];
+
+    await app.client.views.open({
+      trigger_id: event.body.trigger_id,
+      view: giveHugModal({ type: opt.value, prefilledUser }),
     });
-    return;
-  }
-
-  await event.ack();
-
-  const prefilledUser = event.body.text
-    .split(" ")
-    .map((user) => user.match(/<@(?<id>[A-Z0-9]{11})\|.*>/)?.groups?.id)
-    .filter((x): x is string => !!x)[0];
-
-  await app.client.views.open({
-    trigger_id: event.body.trigger_id,
-    view: giveHugModal({ prefilledUser }),
   });
-});
+}
 
 app.view("give_hug_modal", async (event) => {
   const values = event.view.state.values;
@@ -101,7 +104,7 @@ app.action("send_another", async (event) => {
   await app.client.views.update({
     view_id: event.body.view.id,
     hash: event.body.view.hash,
-    view: giveHugModal({}),
+    view: giveHugModal({ type: "hug" }),
   });
 });
 

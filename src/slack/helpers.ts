@@ -50,7 +50,7 @@ export const hugTypeEmojis: {
   pat: { default: ":neocat_pat:" },
 };
 
-export const giveHugModal = (opts: { prefilledUser?: string }) =>
+export const giveHugModal = (opts: { type: HugType; prefilledUser?: string }) =>
   ({
     type: "modal",
     callback_id: "give_hug_modal",
@@ -81,7 +81,7 @@ export const giveHugModal = (opts: { prefilledUser?: string }) =>
           type: "static_select",
           action_id: "type",
           placeholder: { type: "plain_text", text: "select a type..." },
-          initial_option: hugTypeOpts[0],
+          initial_option: hugTypeOpts.find((v) => v.value === opts.type),
           options: hugTypeOpts,
         },
       },

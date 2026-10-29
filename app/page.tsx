@@ -5,7 +5,7 @@ import neocatHeart from "@/assets/neocat_heart.png";
 import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 
-const end = dayjs("2026-10-29T22:00:00.000Z");
+const end = dayjs("2026-10-29T22:30:00.000Z");
 
 export default function Home() {
   const [date, setDate] = useState(() => dayjs());

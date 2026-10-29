@@ -6,8 +6,8 @@
 
 const CHANNEL = "C09RR27E2HL"; // -> #hugs
 
-import { events } from "../server/utils/db/schema";
-import { requiredEnv } from "../server/utils/env";
+import { events } from "../src/db/schema";
+import { requiredEnv } from "../src/lib/env";
 import { App } from "@slack/bolt";
 import type { ConversationsHistoryResponse } from "@slack/web-api";
 import yoctoSpinner from "yocto-spinner";
@@ -20,7 +20,7 @@ try {
 } catch (e) {}
 
 // import database after env is defined
-const { db } = await import("../server/utils/db");
+const { db } = await import("../src/db");
 
 type Prettify<T> = {
   [K in keyof T]: T[K];

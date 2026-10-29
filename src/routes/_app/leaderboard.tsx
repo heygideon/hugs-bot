@@ -136,11 +136,11 @@ function Home() {
               key={idx}
               className="flex h-14 items-center gap-2.5 border-b border-neutral-200 dark:border-neutral-700"
             >
-              <div className="h-3.5 w-7 animate-pulse rounded-sm bg-neutral-200" />
-              <div className="size-8 animate-pulse rounded-full bg-neutral-200" />
-              <div className="h-5 w-32 animate-pulse rounded-sm bg-neutral-200" />
+              <div className="h-3.5 w-7 animate-pulse rounded-sm bg-neutral-200 dark:bg-neutral-800" />
+              <div className="size-8 animate-pulse rounded-full bg-neutral-200 dark:bg-neutral-800" />
+              <div className="h-5 w-32 animate-pulse rounded-sm bg-neutral-200 dark:bg-neutral-800" />
               <div className="min-w-0 flex-1" />
-              <div className="h-5 w-8 animate-pulse rounded-sm bg-neutral-200" />
+              <div className="h-5 w-8 animate-pulse rounded-sm bg-neutral-200 dark:bg-neutral-800" />
             </div>
           ))}
         </div>

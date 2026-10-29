@@ -16,14 +16,6 @@ import { app, receiver } from "./app";
 
 for (const opt of hugTypeOpts) {
   app.command(`/give-${opt.value}`, async (event) => {
-    if (event.body.user_id !== "U09D42Q0ARJ") {
-      await event.ack({
-        response_type: "ephemeral",
-        text: "not your time yet! wait a little longer <3",
-      });
-      return;
-    }
-
     await event.ack();
 
     const prefilledUser = event.body.text

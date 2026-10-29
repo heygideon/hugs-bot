@@ -34,7 +34,7 @@ export const rateLimits = pgTable(
   "rate_limits",
   {
     userId: text("user_id").notNull(),
-    ts: timestamp().notNull().defaultNow(),
+    ts: bigint({ mode: "number" }).notNull(),
     count: integer().notNull().default(1),
   },
   (t) => [primaryKey({ columns: [t.userId, t.ts] })],

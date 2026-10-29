@@ -23,13 +23,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           content: "width=device-width, initial-scale=1",
         },
         {
-          title: "TanStack Start Starter",
+          title: "an affectionate cat",
         },
       ],
       links: [
         { rel: "stylesheet", href: crimsonPro },
         { rel: "stylesheet", href: platypi },
         { rel: "stylesheet", href: appCss },
+        { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
       ],
     }),
     shellComponent: RootDocument,

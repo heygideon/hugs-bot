@@ -189,7 +189,7 @@ export async function returnHugToUser(opts: ReturnHugToUserOpts) {
     blocks: blocks(
       section(`${defaultEmoji} you got a ${opts.type} from <@${opts.toId}>!`),
       section(`you clicked *give ${opts.type} back!*`),
-      context(`send your own ${opts.type}s! \`/give-hug\``),
+      context(`send your own ${opts.type}s! \`/give-${opts.type}\``),
     ),
   });
 

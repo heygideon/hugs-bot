@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  --font-serif: var(--font-crimson-pro), serif;
+  --font-serif: "Crimson Pro Variable", serif;
+  --font-heading: "Platypi Variable", serif;
   --default-font-family: var(--font-serif);
+
+  --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
 }
 
 @layer base {
   body,
   html {
-    @apply h-full;
+    height: 100%;
   }
-
   html {
     background: url("/noise.png") repeat;
     color-scheme: light dark;

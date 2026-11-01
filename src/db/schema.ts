@@ -20,6 +20,8 @@ export const events = pgTable("events", {
       "boop_return",
       "pat_send",
       "pat_return",
+      "nom_send",
+      "nom_return",
     ],
   }).notNull(),
   source: text({ enum: ["workflow", "v1", "v2"] }).notNull(),

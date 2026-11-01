@@ -31,6 +31,10 @@ export const hugTypeOpts = [
     value: "pat" as const,
     text: { type: "plain_text", text: ":neocat_pat: pat" },
   },
+  {
+    value: "nom" as const,
+    text: { type: "plain_text", text: ":neocat_nom_cat: nom" },
+  },
 ] satisfies PlainTextOption[];
 export const hugTypeSchema = z
   .enum(hugTypeOpts.map((v) => v.value))
@@ -48,6 +52,7 @@ export const hugTypeEmojis: {
   },
   boop: { default: ":neocat_boop_blush:" },
   pat: { default: ":neocat_pat:" },
+  nom: { default: ":neocat_nom_cat:" },
 };
 
 export const giveHugModal = (opts: { type: HugType; prefilledUser?: string }) =>

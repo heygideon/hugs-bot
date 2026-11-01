@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import clsx from "clsx";
+import { useMemo } from "react";
 import type z from "zod";
 import { getLeaderboard } from "~/actions/leaderboard";
 import { leaderboardSchema } from "~/actions/leaderboard/schemas";
@@ -20,7 +21,7 @@ import UserCombobox from "~/components/UserCombobox";
 import neocatHeart from "~/assets/images/neocat_heart.png";
 import neocatBoop from "~/assets/images/neocat_boop_blush.png";
 import neocatPat from "~/assets/images/neocat_pat.png";
-import { useMemo } from "react";
+import neocatNom from "~/assets/images/neocat_nom_cat.png";
 
 const leaderboardQuery = (data: z.infer<typeof leaderboardSchema>) =>
   queryOptions({
@@ -32,6 +33,7 @@ const typeOptions = [
   { id: "hug", value: "hug", emoji: neocatHeart },
   { id: "boop", value: "boop", emoji: neocatBoop },
   { id: "pat", value: "pat", emoji: neocatPat },
+  { id: "nom", value: "nom", emoji: neocatNom },
 ];
 const viewOptions = [
   { id: "send", value: "senders" },

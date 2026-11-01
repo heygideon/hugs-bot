@@ -142,11 +142,7 @@ export async function sendHugToUser(opts: SendHugToUserOpts) {
         ? [section(`they said:\n>${opts.message.split("\n").join("\n>")}`)]
         : []),
       actions(
-        button(
-          text(`:neocat_aww: give ${opts.type} back!`)
-            .mrkdwn(false)
-            .emoji(true),
-        )
+        button(text(`give ${opts.type} back!`).mrkdwn(false))
           .style("primary")
           .id("give_hug_back")
           .value(`${opts.fromId}.${opts.type}`),

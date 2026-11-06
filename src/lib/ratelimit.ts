@@ -16,6 +16,7 @@ export async function ratelimit(userId: string) {
       .where(
         and(
           eq(rateLimits.userId, userId),
+          gt(rateLimits.count, 1),
           gt(rateLimits.ts, ts - 30), // within last 30s
         ),
       ),

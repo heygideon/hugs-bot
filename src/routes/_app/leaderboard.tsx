@@ -22,6 +22,7 @@ import neocatHeart from "~/assets/images/neocat_heart.png";
 import neocatBoop from "~/assets/images/neocat_boop_blush.png";
 import neocatPat from "~/assets/images/neocat_pat.png";
 import neocatNom from "~/assets/images/neocat_nom_cat.png";
+import neocatSnuggle from "~/assets/images/neocat_snuggle.png";
 
 const leaderboardQuery = (data: z.infer<typeof leaderboardSchema>) =>
   queryOptions({
@@ -34,6 +35,7 @@ const typeOptions = [
   { id: "boop", value: "boop", emoji: neocatBoop },
   { id: "pat", value: "pat", emoji: neocatPat },
   { id: "nom", value: "nom", emoji: neocatNom },
+  { id: "snuggle", value: "snuggle", emoji: neocatSnuggle },
 ];
 const viewOptions = [
   { id: "send", value: "senders" },

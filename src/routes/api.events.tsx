@@ -16,6 +16,7 @@ async function getUidFromSlackRequest(request: Request) {
         "x-slack-signature": request.headers.get("x-slack-signature") || "",
         "x-slack-request-timestamp": parseInt(
           request.headers.get("x-slack-request-timestamp") || "",
+          10,
         ),
       },
       body,
@@ -34,14 +35,14 @@ async function getUidFromSlackRequest(request: Request) {
   }
 
   // modals and actions (less easy)
-  let _payload = formData.get("payload");
+  const _payload = formData.get("payload");
   if (_payload && typeof _payload === "string") {
     try {
       const payload = JSON.parse(_payload);
       if (payload && payload.user?.id && typeof payload.user.id === "string") {
         return payload.user.id as string;
       }
-    } catch (e) {}
+    } catch {}
   }
 
   return null;

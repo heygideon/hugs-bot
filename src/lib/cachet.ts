@@ -14,7 +14,7 @@ export async function getUserInfo(id: string) {
     // Resize avatars to 48px
     const imageUrl = user.imageUrl.replace("_512", "_48");
     return { ...user, imageUrl };
-  } catch (e) {
+  } catch {
     // Return some fallback info
     return {
       id,

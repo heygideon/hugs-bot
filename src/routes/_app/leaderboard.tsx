@@ -137,6 +137,7 @@ function Home() {
         <div className="mt-6 border-t border-neutral-200 mask-b-from-0 dark:border-neutral-700">
           {Array.from({ length: 5 }).map((_, idx) => (
             <div
+              // biome-ignore lint/suspicious/noArrayIndexKey: intentional
               key={idx}
               className="flex h-14 items-center gap-2.5 border-b border-neutral-200 dark:border-neutral-700"
             >
@@ -176,6 +177,7 @@ function Home() {
               </p>
               <img
                 src={row.user.imageUrl}
+                alt={row.user.displayName}
                 width="32"
                 height="32"
                 className="rounded-full border border-neutral-200 dark:border-neutral-700"
